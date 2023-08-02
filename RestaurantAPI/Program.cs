@@ -1,3 +1,4 @@
+using NLog.Web;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Services;
 using System.Reflection;
@@ -17,6 +18,9 @@ namespace RestaurantAPI
             builder.Services.AddScoped<RestaurantSeeder>();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+
+            builder.Logging.ClearProviders();
+            builder.Host.UseNLog();
 
             var app = builder.Build();
 
