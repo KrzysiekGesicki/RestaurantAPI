@@ -1,5 +1,6 @@
 using NLog.Web;
 using RestaurantAPI.Entities;
+using RestaurantAPI.Middleware;
 using RestaurantAPI.Services;
 using System.Reflection;
 
@@ -18,6 +19,7 @@ namespace RestaurantAPI
             builder.Services.AddScoped<RestaurantSeeder>();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+            builder.Services.AddScoped<ErrorHandlingMiddleware>();
 
             builder.Logging.ClearProviders();
             builder.Host.UseNLog();
@@ -30,10 +32,11 @@ namespace RestaurantAPI
             var seeder = scope.ServiceProvider.GetRequiredService<RestaurantSeeder>();
             seeder.Seed();
 
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
