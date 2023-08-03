@@ -1,0 +1,12 @@
+﻿using Microsoft.IdentityModel.Tokens;
+
+namespace RestaurantAPI.Exceptions
+{
+    public class NotFoundException : Exception
+    {
+        public NotFoundException(string message) : base(message)
+        {
+
+        }
+    }
+}
