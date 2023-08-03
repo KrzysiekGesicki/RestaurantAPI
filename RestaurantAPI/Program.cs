@@ -22,6 +22,7 @@ namespace RestaurantAPI
             builder.Services.AddScoped<ErrorHandlingMiddleware>();
             builder.Services.AddScoped<RequestTimeMiddleware>();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IDishService, DishService>();
 
             builder.Logging.ClearProviders();
             builder.Host.UseNLog();
