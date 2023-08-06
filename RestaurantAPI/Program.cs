@@ -39,6 +39,7 @@ namespace RestaurantAPI
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+            builder.Services.AddSingleton(authenticationSettings);
 
             builder.Services.AddAuthentication(option =>
             {
