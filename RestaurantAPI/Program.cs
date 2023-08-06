@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using NLog.Web;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Middleware;
@@ -8,6 +9,7 @@ using RestaurantAPI.Models;
 using RestaurantAPI.Models.Validators;
 using RestaurantAPI.Services;
 using System.Reflection;
+using System.Text;
 
 namespace RestaurantAPI
 {
@@ -16,6 +18,10 @@ namespace RestaurantAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var authenticationSettings = new AuthenticationSettings();
+
+            builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
 
             // Add services to the container.
 
@@ -34,6 +40,24 @@ namespace RestaurantAPI
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 
+            builder.Services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = "Bearer";
+                option.DefaultScheme = "Bearer";
+                option.DefaultChallengeScheme = "Bearer";
+            }).AddJwtBearer(cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = authenticationSettings.JwtIssuer,
+                    ValidAudience = authenticationSettings.JwtIssuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
+                };
+            });
+
+
             builder.Logging.ClearProviders();
             builder.Host.UseNLog();
 
@@ -47,6 +71,8 @@ namespace RestaurantAPI
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseMiddleware<RequestTimeMiddleware>();
+
+            app.UseAuthentication();
 
             app.UseHttpsRedirection();
 
