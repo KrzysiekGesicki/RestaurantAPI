@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Models;
 using RestaurantAPI.Services;
+using System.Security.Claims;
 
 namespace RestaurantAPI.Controllers
 {
@@ -41,21 +42,22 @@ namespace RestaurantAPI.Controllers
         [Authorize(Roles = "Admin, Manager")]
         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto)
         {
-            int id = _restaurantService.Create(dto);
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            int id = _restaurantService.Create(dto, userId);
             return Created($"/api/restaurant/{id}", null);
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] int id)
         {
-            _restaurantService.Delete(id);
+            _restaurantService.Delete(id, User);
             return NoContent();
         }
 
         [HttpPut("{id}")]
         public ActionResult Update([FromRoute] int id, [FromBody] UpdateRestaurantDto dto)
         {
-            _restaurantService.Update(id, dto);
+            _restaurantService.Update(id, dto, User);
             return NoContent();
         }
     }

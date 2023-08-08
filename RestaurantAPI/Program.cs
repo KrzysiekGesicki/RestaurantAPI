@@ -42,12 +42,15 @@ namespace RestaurantAPI
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
             builder.Services.AddSingleton(authenticationSettings);
+
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality", "German", "Polish"));
                 options.AddPolicy("Atleast20", builder => builder.AddRequirements(new MinimumAgeRequirement(20)));
             });
+
             builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+            builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
 
             builder.Services.AddAuthentication(option =>
             {
